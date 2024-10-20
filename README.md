@@ -1,62 +1,14 @@
-# A Step-By-Step Guide to creating your own assistant chatbot using OpenAI's Assistant API and React
+# Lesson Planner Wizard
 
-View the corresponding article here: https://medium.com/@JeffyJeff/a-step-by-step-guide-to-creating-your-own-assistant-chatbot-using-openais-assistant-api-and-react-655391215c3a
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-A simple chatbot web application built with React, TypeScript, and Material-UI.
-
-## Table of Contents
-
-- [Introduction](#introduction)
-- [Features](#features)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-
-## Introduction
-
-This is a basic chatbot application developed using React, TypeScript, and Material-UI. It allows users to engage in text-based conversations with the chatbot, and you can further customize it to add more advanced natural language processing capabilities or integrate it with a backend service for more complex interactions.
+Lesson Planner Wizard is a chatbot-based web application designed to help users plan lessons effectively. Built using React, TypeScript, and Material-UI, this tool enables educators to easily define educational goals, lesson structures, and desired outcomes. The chatbot interface guides users through goal setting, lesson development, and activity suggestions based on various inputs.
 
 ## Features
 
-- User-friendly chat interface.
-- Message input and display.
-- Send and receive messages in a chat-like format.
-- Easy-to-customize Material-UI components.
+- **Goal-Oriented Lesson Planning**: Users can define educational goals via an intuitive chatbot interface, providing flexibility to focus on skills such as communication, emotional regulation, or problem-solving.
+- **Customizable Lessons**: Adapt lesson plans based on specific student needs, including communication skills, social interactions, and academic goals.
+- **Digital Literacy Support**: A section for developing digital literacy skills, including navigating technology and public transportation safely.
+- **Mindfulness & Emotional Regulation**: Integrates techniques like mindfulness and stress management for both educators and students.
+- **Professional Skills Development**: Supports educators with resources for helping students build interview and job-finding skills.
+- **Skill-Based Categories**: The system suggests activities and lesson components based on categorized goals such as communication, social interaction, emotional regulation, and more.
 
-## Getting Started
 
-### Prerequisites
-
-Before you begin, ensure you have met the following requirements:
-
-- Node.js and npm installed on your development machine.
-
-### Installation
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/JeffyJeff1980/openai-react.git
-
-## Usage
-
-In the project directory, you can run:
-
-### `npm run start:dev`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-## Contributing
-Contributions are welcome! If you have any improvements, bug fixes, or new features to suggest, please feel free to open an issue or submit a pull request. For major changes, please discuss them in advance in the issue tracker.
-
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
