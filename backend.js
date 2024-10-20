@@ -7,6 +7,7 @@ import csv from 'csv-parser';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import setupEndpoints from './endpoints.js';
 
 // Definir __dirname en ES6
 const __filename = fileURLToPath(import.meta.url);
@@ -92,39 +93,14 @@ async function initializeDatabase() {
   console.log('Database initialized successfully.');
 }
 
-// Endpoint para consultar la base de datos de Chroma
-app.post('/query', async (req, res) => {
-  const queryText = req.body.queryText;
-
-  if (!queryText) {
-    return res.status(400).json({ error: 'Query text is required.' });
-  }
-
-  try {
-    // Usamos la colección ya existente, no la recreamos
-    if (!collection) {
-      return res.status(500).json({ error: 'Collection not initialized.' });
-    }
-
-    // Ejecutar la consulta
-    const results = await collection.query({
-      queryTexts: queryText,
-      nResults: 5, // Número de resultados a retornar
-    });
-
-    // Devolver los resultados como JSON
-    res.json({ results: results });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'An error occurred during the query.' });
-  }
-});
-
 // Inicializar la base de datos antes de levantar el servidor
 initializeDatabase()
   .then(() => {
     // Servir el frontend estático si es necesario
     app.use(express.static(path.join(__dirname, 'build')));
+
+    // Configurar los endpoints desde el archivo externo
+    setupEndpoints(app, collection);
 
     // Cualquier otra ruta redirige al frontend
     app.get('*', (req, res) => {

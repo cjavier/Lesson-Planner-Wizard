@@ -3,47 +3,67 @@ import { TextField, Input, Button, Container, Grid, LinearProgress, CircularProg
 import Message from "./Message";
 import { MessageDto } from "../models/MessageDto";
 import SendIcon from "@mui/icons-material/Send";
-import { initOpenAIAssistant, sendMessageToAssistant } from "../components/openaiAssistant";
+import axios from 'axios';
 
 const FormChat: React.FC = () => {
   const [isWaiting, setIsWaiting] = useState<boolean>(false);
   const [messages, setMessages] = useState<Array<MessageDto>>(new Array<MessageDto>());
-  const [assistant, setAssistant] = useState<any>(null);
-  const [thread, setThread] = useState<any>(null);
-  const [openai, setOpenai] = useState<any>(null);
+  const [threadId, setThreadId] = useState<string | null>(null);
 
   // Campos del formulario
   const [skill, setSkill] = useState<string>("");
   const [ageGroup, setAgeGroup] = useState<string>("");
   const [goal, setGoal] = useState<string>("");
 
-  // Inicializar el asistente
+  // Al montar el componente, verificamos si hay un threadId en localStorage, si no, creamos uno nuevo
   useEffect(() => {
-    initChatBot().catch((error) => console.error("Error initializing chatbot:", error));
+    const storedThreadId = localStorage.getItem("threadId");
+    if (storedThreadId) {
+      setThreadId(storedThreadId);
+      console.log(`Thread ID: ${storedThreadId}`);
+    } else {
+      initChatBot().catch((error) => console.error("Error initializing chatbot:", error));
+    }
   }, []);
 
+  // Mensaje inicial al crear el thread
   useEffect(() => {
-    setMessages([
-      {
-        content: "Hello, I'm your **Social Communication Lesson Planning Assistant**. I can recommend you the best content for your caseload.",
-        isUser: false,
-      },
-    ]);
-  }, [assistant]);
+    if (threadId) {
+      setMessages([
+        {
+          content: "Hello, I'm your **Social Communication Lesson Planning Assistant**. I can recommend you the best content for your caseload.",
+          isUser: false,
+        },
+      ]);
+    }
+  }, [threadId]);
 
+  // Crear un nuevo thread al iniciar el chat y guardar el threadId en localStorage
   const initChatBot = async () => {
-    const { openai, assistant, thread } = await initOpenAIAssistant();
-    setOpenai(openai);
-    setAssistant(assistant);
-    setThread(thread);
+    try {
+      console.log("Creating new thread...");
+      const response = await axios.post('http://localhost:5001/createThread');
+      const newThreadId = response.data.threadId;
+      setThreadId(newThreadId);
+      console.log(`Thread ID: ${newThreadId}`);
+      localStorage.setItem("threadId", newThreadId);  // Guardar el threadId en localStorage
+    } catch (error) {
+      console.error("Error creating thread:", error);
+    }
   };
 
+  // Crear un nuevo mensaje
   const createNewMessage = (content: string, isUser: boolean) => {
     return new MessageDto(isUser, content);
   };
 
   // Manejar el envío del formulario
   const handleSendMessage = async () => {
+    if (!threadId) {
+      console.error("Thread ID is not set.");
+      return;
+    }
+
     // Concatenar el mensaje basado en los valores del formulario
     const concatenatedMessage = `Skill: ${skill}, Age Group: ${ageGroup}, Goal: ${goal}`;
     const newMessage = createNewMessage(concatenatedMessage, true);
@@ -51,8 +71,32 @@ const FormChat: React.FC = () => {
     // Agregar el nuevo mensaje del usuario al estado
     setMessages((prevMessages) => [...prevMessages, newMessage]);
 
-    // Enviar el mensaje al asistente
-    await sendMessageToAssistant(openai, thread, assistant, concatenatedMessage, setIsWaiting, setMessages, createNewMessage);
+    // Limpiar el input
+    setSkill("");
+    setAgeGroup("");
+    setGoal("");
+
+    // Iniciar el proceso de espera para la respuesta
+    setIsWaiting(true);
+
+    try {
+      // Enviar el mensaje al backend para procesarlo con el asistente
+      const response = await axios.post('http://localhost:5001/sendMessageToThread', {
+        threadId: threadId,
+        message: concatenatedMessage,
+      });
+
+      // Obtener la respuesta del asistente
+      const assistantMessage = response.data.message;
+
+      // Agregar la respuesta del asistente a la lista de mensajes
+      const newAssistantMessage = createNewMessage(assistantMessage, false);
+      setMessages((prevMessages) => [...prevMessages, newAssistantMessage]);
+    } catch (error) {
+      console.error("Error sending message to thread:", error);
+    } finally {
+      setIsWaiting(false);
+    }
   };
 
   return (
@@ -100,13 +144,13 @@ const FormChat: React.FC = () => {
           <FormControl fullWidth margin="normal">
             <InputLabel htmlFor="goal-input">Goal</InputLabel>
             <Input
-                id="goal-input"
-                value={goal}
-                onChange={(e) => setGoal(e.target.value)}
-                placeholder="Describe your goal"
-                fullWidth
+              id="goal-input"
+              value={goal}
+              onChange={(e) => setGoal(e.target.value)}
+              placeholder="Describe your goal"
+              fullWidth
             />
-            </FormControl>
+          </FormControl>
         </Grid>
       </Grid>
 
